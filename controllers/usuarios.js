@@ -2,10 +2,11 @@ const { response } = require('express');
 const bcrypt = require('bcryptjs');
 
 const Usuario = require('../models/usuarios');
+const { generarJWT } = require('../helpers/jwt');
 
 const getUsuarios = async (req, res) => {
 
-    const usuarios = await Usuario.find({}, 'nombre email ');
+    const usuarios = await Usuario.find({}, 'nombre email role google ');
 
     res.json({
         ok: true,
@@ -38,9 +39,13 @@ const crearUsuario = async (req, res = response) => {
         //Guardar usuario
         await usuario.save();
 
+        //Generar un token -jwt
+        const token = await generarJWT(usuario);
+
         res.json({
             ok: true,
-            usuario
+            usuario,
+            token
         });
 
     } catch (error) {
@@ -101,8 +106,39 @@ const actualizarUsuario = async (req, res = response ) => {
 
 }
 
+const borrarUsuario = async(req, res = response ) => {
+    const uid = req.params.id;
+
+    try {
+
+        const usuarioDB = await Usuario.findById( uid );
+
+        if(!usuarioDB){
+            return res.status(404).json({
+                ok: false,
+                msg: 'No existe un usuario por este id'
+            });
+        }
+
+        await Usuario.findByIdAndDelete( uid );
+
+        res.json({
+            ok: true,
+            msg: 'Usuario eliminado'
+        })
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error al borrar usuario'
+        })
+    }
+}
+
 module.exports = {
     getUsuarios,
     crearUsuario,
     actualizarUsuario,
+    borrarUsuario,
 }
