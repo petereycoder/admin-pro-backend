@@ -1,5 +1,7 @@
 const { response } = require('express');
 
+const Medico = require('../models/medico');
+
 const getMedicos = (req, res = response) => {
 
     res.json({
@@ -8,12 +10,32 @@ const getMedicos = (req, res = response) => {
     })
 }
 
-const crearMedico = (req, res = response) => {
+const crearMedico = async(req, res = response) => {
+    const datos = req.uid;
+    const uid = datos.uid;
 
-    res.json({
-        ok: true,
-        msg: 'crearMedico'
+    const medico = new Medico({
+        usuario: uid,
+        ...req.body
     })
+
+    try {
+        
+        const medicoBD = await medico.save();
+
+        res.json({
+            ok: true,
+            medico: medicoBD
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        })
+    }
+
+    
 }
 
 const actualizarMedico = (req, res = response) => {

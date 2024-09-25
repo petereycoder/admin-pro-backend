@@ -10,10 +10,12 @@ const MedicoSchema = Schema({
         type: String,
     },
     usuario: {
+        required: true,
         type: Schema.Types.ObjectId,
         ref: 'Usuario'
     },
-    usuario: {
+    hospital: {
+        required: true,
         type: Schema.Types.ObjectId,
         ref: 'Hospital'
     }
